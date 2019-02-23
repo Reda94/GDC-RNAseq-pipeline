@@ -1,7 +1,7 @@
 #!/usr/bin/env nextflow
 
 input_dir = params.in //input directory containing all fastq files
-input_data = "${input_dir}/*.{fatsq,tar}.gz"
+input_data = "${input_dir}/*.{fastq,tar}.gz"
 fastq_files = Channel.fromPath(input_data).map{file -> tuple(file.simpleName, file)}
 
 output_dir = params.out //output directory containing results for all files
