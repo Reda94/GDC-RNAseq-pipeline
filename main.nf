@@ -29,9 +29,8 @@ process alignmentFirstPass {
   //Check file extension:
   script:
   bn = fq.baseName
-  pre_ext = bn.extension
 
-  if(pre_ext == 'tar')
+  if(bn =~ /.tar$/)
     uncompress_command = 'tar xvzf'
   else
     uncompress_command = 'zcat'
@@ -112,9 +111,8 @@ process alignmentSecondPass {
 
   script:
   bn = fq.baseName
-  pre_ext = bn.extension
 
-  if(pre_ext == 'tar')
+  if(bn =~ /.tar$/)
     uncompress_command = 'tar xvzf'
   else
     uncompress_command = 'zcat'
