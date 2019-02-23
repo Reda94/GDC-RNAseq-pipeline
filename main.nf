@@ -1,7 +1,7 @@
 #!/usr/bin/env nextflow
 
 input_dir = params.in //input directory containing all fastq files
-input_data = "${input_dir}/*.gz"
+input_data = "${input_dir}/*.{fatsq,tar}.gz"
 fastq_files = Channel.fromPath(input_data).map{file -> tuple(file.simpleName, file)}
 
 output_dir = params.out //output directory containing results for all files
@@ -26,6 +26,15 @@ process alignmentFirstPass {
   output:
   set sample_name, file(fq), file("${sample_name}_first_pass/*SJ.out.tab") into firstpass_results
 
+  //Check file extension:
+  script:
+  bn = fq.baseName
+  pre_ext = bn.extension
+
+  if(pre_ext == 'tar')
+    uncompress_command = 'tar xvzf'
+  else
+    uncompress_command = 'zcat'
   """
   module load STAR/2.4.2a-foss-2018b
   mkdir ${sample_name}_first_pass
@@ -43,7 +52,7 @@ process alignmentFirstPass {
   --sjdbScore 2 \\
   --alignSJDBoverhangMin 1 \\
   --genomeLoad NoSharedMemory \\
-  --readFilesCommand zcat \\
+  --readFilesCommand $uncompress_command \\
   --outFilterMatchNminOverLread 0.33 \\
   --outFilterScoreMinOverLread 0.33 \\
   --sjdbOverhang 100 \\
@@ -100,6 +109,15 @@ process alignmentSecondPass {
   set sample_name, file("${sample_name}_second_pass/*Log.out") into fb_log_out
   set sample_name, file("${sample_name}_second_pass/*Aligned.sortedByCoord.out.bam"), file("${sample_name}_second_pass/*Aligned.sortedByCoord.out.bam.bai") into rseqc_input
 
+
+  script:
+  bn = fq.baseName
+  pre_ext = bn.extension
+
+  if(pre_ext == 'tar')
+    uncompress_command = 'tar xvzf'
+  else
+    uncompress_command = 'zcat'
   """
   module load STAR/2.4.2a-foss-2018b
   module load SAMtools/1.1-foss-2018b
@@ -119,7 +137,7 @@ process alignmentSecondPass {
   --alignSJDBoverhangMin 1 \\
   --genomeLoad NoSharedMemory \\
   --limitBAMsortRAM 0 \\
-  --readFilesCommand zcat \\
+  --readFilesCommand $uncompress_command \\
   --outFilterMatchNminOverLread 0.33 \\
   --outFilterScoreMinOverLread 0.33 \\
   --sjdbOverhang 100 \\
