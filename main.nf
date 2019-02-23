@@ -18,6 +18,8 @@ path_to_data = "\$HOME/.nextflow/assets/Reda94/GDC-RNAseq-pipeline/data/"
 
 process alignmentFirstPass {
 
+  label 'parallel'
+
   publishDir "${output_dir}/${sample_name}"
 
   input:
@@ -65,6 +67,8 @@ process alignmentFirstPass {
 
 process intermediateIdx {
 
+  label 'parallel'
+
   publishDir "${output_dir}/${sample_name}"
 
   input:
@@ -94,6 +98,8 @@ process intermediateIdx {
 
 process alignmentSecondPass {
 
+  label 'parallel'
+
   publishDir "${output_dir}/${sample_name}"
 
   input:
@@ -108,9 +114,9 @@ process alignmentSecondPass {
   set sample_name, file("${sample_name}_second_pass/*Log.out") into fb_log_out
   set sample_name, file("${sample_name}_second_pass/*Aligned.sortedByCoord.out.bam"), file("${sample_name}_second_pass/*Aligned.sortedByCoord.out.bam.bai") into rseqc_input
 
-
+  //Check file extension:
   script:
-  bn = fq.baseName
+  bn = fq_sp.baseName
 
   if(bn =~ /.tar$/)
     uncompress_command = 'tar Ozxf'
@@ -147,6 +153,7 @@ process alignmentSecondPass {
   --outSAMattrRGline ID:${sample_name} SM:${sample_name}
 
   samtools index ./${sample_name}_second_pass/${sample_name}Aligned.sortedByCoord.out.bam
+
   """
 }
 
@@ -174,7 +181,7 @@ process rawReadCount {
   -r pos \\
   -s no \\
   - $gdc_gtf \\
-  | grep 'ENS' > ./${sample_name}_raw_read_counts/${sample_name}raw_counts.txt
+  > ./${sample_name}_raw_read_counts/${sample_name}raw_counts.txt
   """
 }
 
