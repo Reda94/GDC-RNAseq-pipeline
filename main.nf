@@ -31,7 +31,7 @@ process alignmentFirstPass {
   bn = fq.baseName
 
   if(bn =~ /.tar$/)
-    uncompress_command = 'tar xvzf'
+    uncompress_command = 'tar Ozxf'
   else
     uncompress_command = 'zcat'
   """
@@ -113,7 +113,7 @@ process alignmentSecondPass {
   bn = fq.baseName
 
   if(bn =~ /.tar$/)
-    uncompress_command = 'tar xvzf'
+    uncompress_command = 'tar Ozxf'
   else
     uncompress_command = 'zcat'
   """
